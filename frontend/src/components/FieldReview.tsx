@@ -26,6 +26,14 @@ const LONG_FIELDS: (keyof ExtractedFields)[] = [
   "contractor_address",
 ];
 
+const PAYMENT_TERMS_OPTIONS = [
+  "",
+  "Net 30",
+  "Net 60",
+  "When Invoiced",
+  "Cash on Delivery",
+];
+
 function confidenceLabel(value: number): { text: string; className: string } {
   if (value >= 0.8) return { text: "High", className: "confidence-high" };
   if (value >= 0.5) return { text: "Medium", className: "confidence-medium" };
@@ -70,7 +78,19 @@ export default function FieldReview({
                   </span>
                 )}
               </label>
-              {isLong ? (
+              {key === "payment_terms" ? (
+                <select
+                  id={`field-${key}`}
+                  value={fields[key]}
+                  onChange={(e) => handleChange(key, e.target.value)}
+                >
+                  {PAYMENT_TERMS_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt || "— Select —"}
+                    </option>
+                  ))}
+                </select>
+              ) : isLong ? (
                 <textarea
                   id={`field-${key}`}
                   value={fields[key]}

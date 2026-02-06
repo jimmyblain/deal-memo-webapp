@@ -20,7 +20,7 @@ Required fields:
 - vendor_name: The name of the vendor, contractor, or service provider
 - description_of_services: A concise summary of the services being provided
 - total_cost: The total cost/price of the deal (include currency)
-- payment_terms: Payment schedule, net terms, milestones, etc.
+- payment_terms: Must be one of: "Net 30", "Net 60", "When Invoiced", "Cash on Delivery". Pick the closest match from the document.
 - contract_start_date: When the contract begins (MM-DD-YYYY format)
 - contract_end_date: When the contract ends (MM-DD-YYYY format)
 - contractor_email: The contractor's or vendor's email address

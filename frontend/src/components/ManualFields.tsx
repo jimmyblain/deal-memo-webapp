@@ -1,6 +1,12 @@
 import type { ManualFieldValues } from "../types";
 import "./ManualFields.css";
 
+/** Convert MM-DD-YYYY to YYYY-MM-DD for the date input's value */
+function toIsoDate(mmddyyyy: string): string {
+  const m = mmddyyyy.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  return m ? `${m[3]}-${m[1]}-${m[2]}` : "";
+}
+
 interface Props {
   fields: ManualFieldValues;
   onChange: (fields: ManualFieldValues) => void;
@@ -61,10 +67,17 @@ export default function ManualFields({ fields, onChange, onNext, onBack }: Props
           <label htmlFor="submission_date">Submission Date</label>
           <input
             id="submission_date"
-            type="text"
-            value={fields.submission_date}
-            onChange={(e) => handleChange("submission_date", e.target.value)}
-            placeholder="MM-DD-YYYY"
+            type="date"
+            value={toIsoDate(fields.submission_date)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val) {
+                const [y, m, d] = val.split("-");
+                handleChange("submission_date", `${m}-${d}-${y}`);
+              } else {
+                handleChange("submission_date", "");
+              }
+            }}
           />
         </div>
 

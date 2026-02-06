@@ -17,19 +17,30 @@ const STEPS = [
   "Generate",
 ];
 
+function todayMMDDYYYY(): string {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${mm}-${dd}-${d.getFullYear()}`;
+}
+
 const INITIAL_MANUAL_FIELDS: ManualFieldValues = {
   deal_owner: "",
   department: "",
   business_justification: "",
   budget_code: "",
-  submission_date: "",
+  submission_date: todayMMDDYYYY(),
   budget_contemplated: "",
   requires_rf_access: "",
   contract_team_info_needed: "",
   contract_team_info_details: "",
 };
 
-export default function DealMemo() {
+interface Props {
+  onResetRef?: (reset: () => void) => void;
+}
+
+export default function DealMemo({ onResetRef }: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [extractedFields, setExtractedFields] =
@@ -39,6 +50,17 @@ export default function DealMemo() {
     useState<ManualFieldValues>(INITIAL_MANUAL_FIELDS);
   const [isExtracting, setIsExtracting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function reset() {
+    setCurrentStep(0);
+    setFiles([]);
+    setExtractedFields(null);
+    setConfidence({});
+    setManualFields({ ...INITIAL_MANUAL_FIELDS, submission_date: todayMMDDYYYY() });
+    setError(null);
+  }
+
+  onResetRef?.(reset);
 
   async function handleUploadAndExtract(uploadedFiles: UploadedFile[]) {
     setFiles(uploadedFiles);
