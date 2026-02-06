@@ -8,9 +8,9 @@ from models.deal_memo import DealMemoData
 
 logger = logging.getLogger(__name__)
 
-# Path to the template bundled with the app
+# Path to the template bundled with the API
 TEMPLATE_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    os.path.dirname(os.path.dirname(__file__)),
     "templates",
     "deal_memo_template.docx",
 )
