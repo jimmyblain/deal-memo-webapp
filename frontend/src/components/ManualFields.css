@@ -32,3 +32,22 @@
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.15);
 }
+
+.radio-group {
+  display: flex;
+  gap: 24px;
+  padding: 4px 0;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.radio-group input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+}

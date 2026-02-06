@@ -58,29 +58,14 @@ export default function ManualFields({ fields, onChange, onNext, onBack }: Props
         </div>
 
         <div className="field-group">
-          <label htmlFor="approver_name">Approver Name *</label>
+          <label htmlFor="submission_date">Submission Date</label>
           <input
-            id="approver_name"
+            id="submission_date"
             type="text"
-            value={fields.approver_name}
-            onChange={(e) => handleChange("approver_name", e.target.value)}
-            placeholder="e.g., John Doe"
-            required
+            value={fields.submission_date}
+            onChange={(e) => handleChange("submission_date", e.target.value)}
+            placeholder="MM-DD-YYYY"
           />
-        </div>
-
-        <div className="field-group">
-          <label htmlFor="deal_priority">Deal Priority</label>
-          <select
-            id="deal_priority"
-            value={fields.deal_priority}
-            onChange={(e) => handleChange("deal_priority", e.target.value)}
-          >
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-            <option value="Critical">Critical</option>
-          </select>
         </div>
 
         <div className="field-group field-full">
@@ -96,15 +81,98 @@ export default function ManualFields({ fields, onChange, onNext, onBack }: Props
         </div>
 
         <div className="field-group field-full">
-          <label htmlFor="internal_notes">Internal Notes</label>
-          <textarea
-            id="internal_notes"
-            value={fields.internal_notes}
-            onChange={(e) => handleChange("internal_notes", e.target.value)}
-            placeholder="Any additional notes for internal use..."
-            rows={2}
-          />
+          <label>Was this project contemplated when the current year budget was finalized?</label>
+          <div className="radio-group">
+            <label>
+              <input
+                type="radio"
+                name="budget_contemplated"
+                value="Yes"
+                checked={fields.budget_contemplated === "Yes"}
+                onChange={(e) => handleChange("budget_contemplated", e.target.value)}
+              />
+              Yes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="budget_contemplated"
+                value="No"
+                checked={fields.budget_contemplated === "No"}
+                onChange={(e) => handleChange("budget_contemplated", e.target.value)}
+              />
+              No
+            </label>
+          </div>
         </div>
+
+        <div className="field-group field-full">
+          <label>Will the contractor require the use of RF equipment or systems access?</label>
+          <div className="radio-group">
+            <label>
+              <input
+                type="radio"
+                name="requires_rf_access"
+                value="Yes"
+                checked={fields.requires_rf_access === "Yes"}
+                onChange={(e) => handleChange("requires_rf_access", e.target.value)}
+              />
+              Yes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="requires_rf_access"
+                value="No"
+                checked={fields.requires_rf_access === "No"}
+                onChange={(e) => handleChange("requires_rf_access", e.target.value)}
+              />
+              No
+            </label>
+          </div>
+        </div>
+
+        <div className="field-group field-full">
+          <label>Is there any information the contract team needs to know?</label>
+          <div className="radio-group">
+            <label>
+              <input
+                type="radio"
+                name="contract_team_info_needed"
+                value="Yes"
+                checked={fields.contract_team_info_needed === "Yes"}
+                onChange={(e) => handleChange("contract_team_info_needed", e.target.value)}
+              />
+              Yes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="contract_team_info_needed"
+                value="No"
+                checked={fields.contract_team_info_needed === "No"}
+                onChange={(e) => handleChange("contract_team_info_needed", e.target.value)}
+              />
+              No
+            </label>
+          </div>
+        </div>
+
+        {fields.contract_team_info_needed === "Yes" && (
+          <div className="field-group field-full">
+            <label htmlFor="contract_team_info_details">
+              Please provide details for the contract team *
+            </label>
+            <textarea
+              id="contract_team_info_details"
+              value={fields.contract_team_info_details}
+              onChange={(e) => handleChange("contract_team_info_details", e.target.value)}
+              placeholder="Describe what the contract team needs to know..."
+              rows={3}
+              required
+            />
+          </div>
+        )}
       </div>
 
       <div className="step-actions">
@@ -117,7 +185,6 @@ export default function ManualFields({ fields, onChange, onNext, onBack }: Props
           disabled={
             !fields.deal_owner ||
             !fields.department ||
-            !fields.approver_name ||
             !fields.business_justification
           }
         >

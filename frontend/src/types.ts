@@ -5,14 +5,9 @@ export interface ExtractedFields {
   payment_terms: string;
   contract_start_date: string;
   contract_end_date: string;
-  contract_type: string;
-  renewal_terms: string;
-  termination_clause: string;
-  key_deliverables: string;
-  sla_terms: string;
-  confidentiality_terms: string;
-  liability_cap: string;
-  insurance_requirements: string;
+  contractor_email: string;
+  contractor_phone: string;
+  contractor_address: string;
 }
 
 export interface ManualFieldValues {
@@ -20,9 +15,11 @@ export interface ManualFieldValues {
   department: string;
   business_justification: string;
   budget_code: string;
-  approver_name: string;
-  deal_priority: "Low" | "Medium" | "High" | "Critical";
-  internal_notes: string;
+  submission_date: string;
+  budget_contemplated: string;
+  requires_rf_access: string;
+  contract_team_info_needed: string;
+  contract_team_info_details: string;
 }
 
 export type DealMemoData = ExtractedFields & ManualFieldValues;

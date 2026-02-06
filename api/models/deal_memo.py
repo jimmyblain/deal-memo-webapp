@@ -8,14 +8,9 @@ class ExtractedFields(BaseModel):
     payment_terms: str = ""
     contract_start_date: str = ""
     contract_end_date: str = ""
-    contract_type: str = ""
-    renewal_terms: str = ""
-    termination_clause: str = ""
-    key_deliverables: str = ""
-    sla_terms: str = ""
-    confidentiality_terms: str = ""
-    liability_cap: str = ""
-    insurance_requirements: str = ""
+    contractor_email: str = ""
+    contractor_phone: str = ""
+    contractor_address: str = ""
 
 
 class ExtractionResult(BaseModel):
@@ -28,9 +23,11 @@ class ManualFields(BaseModel):
     department: str = ""
     business_justification: str = ""
     budget_code: str = ""
-    approver_name: str = ""
-    deal_priority: str = "Medium"
-    internal_notes: str = ""
+    submission_date: str = ""
+    budget_contemplated: str = ""
+    requires_rf_access: str = ""
+    contract_team_info_needed: str = ""
+    contract_team_info_details: str = ""
 
 
 class DealMemoData(ExtractedFields, ManualFields):

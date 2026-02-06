@@ -22,9 +22,11 @@ const INITIAL_MANUAL_FIELDS: ManualFieldValues = {
   department: "",
   business_justification: "",
   budget_code: "",
-  approver_name: "",
-  deal_priority: "Medium",
-  internal_notes: "",
+  submission_date: "",
+  budget_contemplated: "",
+  requires_rf_access: "",
+  contract_team_info_needed: "",
+  contract_team_info_details: "",
 };
 
 export default function DealMemo() {

@@ -16,14 +16,9 @@ const EXTRACTED_LABELS: Record<keyof ExtractedFields, string> = {
   payment_terms: "Payment Terms",
   contract_start_date: "Start Date",
   contract_end_date: "End Date",
-  contract_type: "Contract Type",
-  renewal_terms: "Renewal Terms",
-  termination_clause: "Termination Clause",
-  key_deliverables: "Key Deliverables",
-  sla_terms: "SLA Terms",
-  confidentiality_terms: "Confidentiality",
-  liability_cap: "Liability Cap",
-  insurance_requirements: "Insurance Requirements",
+  contractor_email: "Contractor Email",
+  contractor_phone: "Contractor Phone",
+  contractor_address: "Contractor Address",
 };
 
 const MANUAL_LABELS: Record<keyof ManualFieldValues, string> = {
@@ -31,9 +26,11 @@ const MANUAL_LABELS: Record<keyof ManualFieldValues, string> = {
   department: "Department",
   business_justification: "Business Justification",
   budget_code: "Budget Code",
-  approver_name: "Approver",
-  deal_priority: "Priority",
-  internal_notes: "Internal Notes",
+  submission_date: "Submission Date",
+  budget_contemplated: "Budget Contemplated",
+  requires_rf_access: "Requires RF/Systems Access",
+  contract_team_info_needed: "Contract Team Info Needed",
+  contract_team_info_details: "Contract Team Info Details",
 };
 
 export default function GenerateButton({

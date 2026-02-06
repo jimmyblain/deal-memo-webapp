@@ -14,21 +14,18 @@ You will be given text extracted from a Statement of Work (SOW) and/or a contrac
 Extract the following fields and return them as a JSON object. If a field is not found in the documents,
 return an empty string for that field. Do NOT fabricate information.
 
+Return all dates in MM-DD-YYYY format (e.g., 01-15-2026).
+
 Required fields:
-- vendor_name: The name of the vendor or service provider
+- vendor_name: The name of the vendor, contractor, or service provider
 - description_of_services: A concise summary of the services being provided
 - total_cost: The total cost/price of the deal (include currency)
 - payment_terms: Payment schedule, net terms, milestones, etc.
-- contract_start_date: When the contract begins
-- contract_end_date: When the contract ends
-- contract_type: Type of agreement (e.g., Fixed Price, Time & Materials, Subscription)
-- renewal_terms: Auto-renewal clauses or renewal conditions
-- termination_clause: Conditions under which either party can terminate
-- key_deliverables: Major deliverables or milestones
-- sla_terms: Service Level Agreement terms if any
-- confidentiality_terms: NDA or confidentiality provisions
-- liability_cap: Liability limitations or caps
-- insurance_requirements: Required insurance coverage
+- contract_start_date: When the contract begins (MM-DD-YYYY format)
+- contract_end_date: When the contract ends (MM-DD-YYYY format)
+- contractor_email: The contractor's or vendor's email address
+- contractor_phone: The contractor's or vendor's phone number
+- contractor_address: The contractor's or vendor's business address
 
 Also return a "confidence" object with the same keys, where each value is a number between 0 and 1
 indicating how confident you are that the extracted value is correct. Use 0.0 if the field was not

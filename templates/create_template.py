@@ -55,41 +55,39 @@ def main():
     add_field_row(table1, "Vendor Name", "{{ vendor_name }}")
     add_field_row(table1, "Deal Owner", "{{ deal_owner }}")
     add_field_row(table1, "Department", "{{ department }}")
-    add_field_row(table1, "Priority", "{{ deal_priority }}")
     add_field_row(table1, "Budget Code", "{{ budget_code }}")
+    add_field_row(table1, "Submission Date", "{{ submission_date }}")
 
     doc.add_paragraph("")
 
-    # Service Details section
-    add_heading_style(doc, "Service Details", level=1)
+    # Contractor Info section
+    add_heading_style(doc, "Contractor Information", level=1)
     table2 = doc.add_table(rows=0, cols=2)
     table2.style = "Table Grid"
     table2.columns[0].width = Inches(2.0)
     table2.columns[1].width = Inches(4.5)
 
-    add_field_row(table2, "Description of Services", "{{ description_of_services }}")
-    add_field_row(table2, "Key Deliverables", "{{ key_deliverables }}")
-    add_field_row(table2, "Contract Type", "{{ contract_type }}")
-    add_field_row(table2, "SLA Terms", "{{ sla_terms }}")
+    add_field_row(table2, "Email", "{{ contractor_email }}")
+    add_field_row(table2, "Phone", "{{ contractor_phone }}")
+    add_field_row(table2, "Address", "{{ contractor_address }}")
 
     doc.add_paragraph("")
 
-    # Financial Terms section
-    add_heading_style(doc, "Financial Terms", level=1)
+    # Service & Financial section
+    add_heading_style(doc, "Service & Financial Details", level=1)
     table3 = doc.add_table(rows=0, cols=2)
     table3.style = "Table Grid"
     table3.columns[0].width = Inches(2.0)
     table3.columns[1].width = Inches(4.5)
 
+    add_field_row(table3, "Description of Services", "{{ description_of_services }}")
     add_field_row(table3, "Total Cost", "{{ total_cost }}")
     add_field_row(table3, "Payment Terms", "{{ payment_terms }}")
-    add_field_row(table3, "Liability Cap", "{{ liability_cap }}")
-    add_field_row(table3, "Insurance Requirements", "{{ insurance_requirements }}")
 
     doc.add_paragraph("")
 
-    # Contract Terms section
-    add_heading_style(doc, "Contract Terms", level=1)
+    # Contract Dates section
+    add_heading_style(doc, "Contract Dates", level=1)
     table4 = doc.add_table(rows=0, cols=2)
     table4.style = "Table Grid"
     table4.columns[0].width = Inches(2.0)
@@ -97,34 +95,26 @@ def main():
 
     add_field_row(table4, "Start Date", "{{ contract_start_date }}")
     add_field_row(table4, "End Date", "{{ contract_end_date }}")
-    add_field_row(table4, "Renewal Terms", "{{ renewal_terms }}")
-    add_field_row(table4, "Termination Clause", "{{ termination_clause }}")
-    add_field_row(table4, "Confidentiality Terms", "{{ confidentiality_terms }}")
+
+    doc.add_paragraph("")
+
+    # Additional Questions section
+    add_heading_style(doc, "Additional Questions", level=1)
+    table5 = doc.add_table(rows=0, cols=2)
+    table5.style = "Table Grid"
+    table5.columns[0].width = Inches(2.0)
+    table5.columns[1].width = Inches(4.5)
+
+    add_field_row(table5, "Budget Contemplated", "{{ budget_contemplated }}")
+    add_field_row(table5, "Requires RF/Systems Access", "{{ requires_rf_access }}")
+    add_field_row(table5, "Contract Team Info Needed", "{{ contract_team_info_needed }}")
+    add_field_row(table5, "Contract Team Info Details", "{{ contract_team_info_details }}")
 
     doc.add_paragraph("")
 
     # Business Justification section
     add_heading_style(doc, "Business Justification", level=1)
     doc.add_paragraph("{{ business_justification }}")
-
-    doc.add_paragraph("")
-
-    # Approval section
-    add_heading_style(doc, "Approval", level=1)
-    table5 = doc.add_table(rows=0, cols=2)
-    table5.style = "Table Grid"
-    table5.columns[0].width = Inches(2.0)
-    table5.columns[1].width = Inches(4.5)
-
-    add_field_row(table5, "Approver", "{{ approver_name }}")
-    add_field_row(table5, "Signature", "")
-    add_field_row(table5, "Date", "")
-
-    doc.add_paragraph("")
-
-    # Internal Notes section
-    add_heading_style(doc, "Internal Notes", level=1)
-    doc.add_paragraph("{{ internal_notes }}")
 
     # Save
     output_path = "templates/deal_memo_template.docx"
