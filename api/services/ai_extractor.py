@@ -67,6 +67,14 @@ def extract_fields(document_text: str) -> ExtractionResult:
     if not content:
         raise ValueError("Empty response from Claude")
 
+    # Strip markdown code fences if Claude wrapped the JSON (e.g. ```json ... ```)
+    content = content.strip()
+    if content.startswith("```"):
+        content = content.split("```", 2)[1]
+        if content.startswith("json"):
+            content = content[4:]
+        content = content.rsplit("```", 1)[0].strip()
+
     parsed = json.loads(content)
 
     fields = ExtractedFields(**parsed.get("fields", parsed))
