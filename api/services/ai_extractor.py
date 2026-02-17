@@ -2,7 +2,9 @@ import json
 import logging
 import os
 
-from openai import AzureOpenAI
+from azure.ai.inference import ChatCompletionsClient
+from azure.ai.inference.models import SystemMessage, UserMessage
+from azure.core.credentials import AzureKeyCredential
 
 from models.deal_memo import ExtractedFields, ExtractionResult
 
@@ -31,42 +33,40 @@ Also return a "confidence" object with the same keys, where each value is a numb
 indicating how confident you are that the extracted value is correct. Use 0.0 if the field was not
 found in the documents.
 
-Return your response as a JSON object with two keys: "fields" and "confidence".
+Return ONLY valid JSON with two keys: "fields" and "confidence". No explanation, no markdown fencing.
 """
 
 
 def extract_fields(document_text: str) -> ExtractionResult:
-    """Send document text to Azure OpenAI and extract structured fields."""
-    client = AzureOpenAI(
-        azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
-        api_key=os.environ["AZURE_OPENAI_API_KEY"],
-        api_version="2024-10-21",
+    """Send document text to Claude via Azure AI Foundry and extract structured fields."""
+    client = ChatCompletionsClient(
+        endpoint=os.environ["AZURE_AI_ENDPOINT"],
+        credential=AzureKeyCredential(os.environ["AZURE_AI_API_KEY"]),
     )
 
-    deployment = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
+    deployment = os.environ.get("AZURE_AI_DEPLOYMENT", "claude-sonnet-46")
 
     logger.info(
-        "Sending %d characters to Azure OpenAI for extraction",
+        "Sending %d characters to Azure AI Foundry (%s) for extraction",
         len(document_text),
+        deployment,
     )
 
-    response = client.chat.completions.create(
+    response = client.complete(
         model=deployment,
         messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {
-                "role": "user",
-                "content": f"Extract deal information from the following document text:\n\n{document_text}",
-            },
+            SystemMessage(content=SYSTEM_PROMPT),
+            UserMessage(
+                content=f"Extract deal information from the following document text:\n\n{document_text}"
+            ),
         ],
-        response_format={"type": "json_object"},
         temperature=0.1,
         max_tokens=4096,
     )
 
     content = response.choices[0].message.content
     if not content:
-        raise ValueError("Empty response from Azure OpenAI")
+        raise ValueError("Empty response from Azure AI Foundry")
 
     parsed = json.loads(content)
 
