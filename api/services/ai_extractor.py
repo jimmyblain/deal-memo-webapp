@@ -2,9 +2,7 @@ import json
 import logging
 import os
 
-from azure.ai.inference import ChatCompletionsClient
-from azure.ai.inference.models import SystemMessage, UserMessage
-from azure.core.credentials import AzureKeyCredential
+import anthropic
 
 from models.deal_memo import ExtractedFields, ExtractionResult
 
@@ -39,34 +37,35 @@ Return ONLY valid JSON with two keys: "fields" and "confidence". No explanation,
 
 def extract_fields(document_text: str) -> ExtractionResult:
     """Send document text to Claude via Azure AI Foundry and extract structured fields."""
-    client = ChatCompletionsClient(
-        endpoint=os.environ["AZURE_AI_ENDPOINT"],
-        credential=AzureKeyCredential(os.environ["AZURE_AI_API_KEY"]),
+    client = anthropic.Anthropic(
+        base_url=os.environ["AZURE_AI_ENDPOINT"],
+        api_key=os.environ["AZURE_AI_API_KEY"],
     )
 
-    deployment = os.environ.get("AZURE_AI_DEPLOYMENT", "claude-sonnet-46")
+    deployment = os.environ.get("AZURE_AI_DEPLOYMENT", "claude-sonnet-4-6")
 
     logger.info(
-        "Sending %d characters to Azure AI Foundry (%s) for extraction",
+        "Sending %d characters to Claude (%s) for extraction",
         len(document_text),
         deployment,
     )
 
-    response = client.complete(
+    response = client.messages.create(
         model=deployment,
+        system=SYSTEM_PROMPT,
         messages=[
-            SystemMessage(content=SYSTEM_PROMPT),
-            UserMessage(
-                content=f"Extract deal information from the following document text:\n\n{document_text}"
-            ),
+            {
+                "role": "user",
+                "content": f"Extract deal information from the following document text:\n\n{document_text}",
+            }
         ],
-        temperature=0.1,
         max_tokens=4096,
+        temperature=0.1,
     )
 
-    content = response.choices[0].message.content
+    content = response.content[0].text
     if not content:
-        raise ValueError("Empty response from Azure AI Foundry")
+        raise ValueError("Empty response from Claude")
 
     parsed = json.loads(content)
 
