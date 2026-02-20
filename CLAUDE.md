@@ -10,47 +10,67 @@ Azure Static Web Apps (React+TS frontend, Python Azure Functions backend).
 - **Template**: `templates/deal_memo_template.docx` (generated via `python templates/create_template.py`)
 - **Infra**: Bicep in `infrastructure/`, CI/CD in `.github/workflows/deploy.yml`
 
-## Current Status (as of 2026-02-05)
+## Current Status (as of 2026-02-17)
 
 ### Completed
-- Azure OpenAI resource created in Azure Portal (`deal-memo-openai`)
-- GPT-4o model deployed via Azure AI Foundry
-- `api/local.settings.json` updated with real endpoint and API key
-- Endpoint URL fixed: was full chat completions URL, corrected to base URL only (`https://deal-memo-openai.cognitiveservices.azure.com/`)
-- No code changes needed for Foundry — the `openai` SDK's `AzureOpenAI` client works identically
+- Azure OpenAI resource created (`deal-memo-openai`) — now also used for Claude via AI Foundry
+- Claude Sonnet 4.6 deployed as a serverless endpoint via Azure AI Foundry (same resource)
+- Switched codebase from `openai` SDK + GPT-4o → `anthropic` SDK + Claude Sonnet 4.6
+- venv exists at `api/.venv` with all deps installed (Python 3.9.6)
+- Local end-to-end test passed: PDF upload → Claude extraction → field review → .docx generation
 
-### Blocking Issue: Python version mismatch on `func start`
-- The **old** `func start` process used **Python 3.9.6** (`/usr/bin/python3`) which had deps installed
-- After killing and restarting, `func start` picked up **Python 3.13.12** (`/opt/homebrew/.../python3.13`) which does NOT have pydantic or other deps
-- **No virtual environment exists** in the project — deps were installed globally for 3.9 only
-- **Fix needed**: Create a venv or install deps for the Python version `func` picks up
+### Active Branch: `feature/claude-sonnet-foundry`
+All Claude-related changes are on this branch. **Not yet merged to `main`.**
 
-### To Resume
-1. Fix the Python version issue (recommended: create a venv in `api/`):
+3 commits on branch:
+1. Switch SDK from `openai`/AzureOpenAI to `anthropic`/ChatCompletionsClient — rename env vars to `AZURE_AI_*`
+2. Fix SDK choice: use `anthropic` package (not `azure-ai-inference`) since the endpoint uses native Anthropic Messages API
+3. Strip markdown code fences from Claude response before JSON parsing
+
+### To Resume Tomorrow
+1. Start servers:
    ```bash
-   cd api
-   python3 -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   func start
-   ```
-   If `func start` still picks up 3.13, try: `python3.13 -m pip install -r requirements.txt`
-2. Verify health: `curl http://localhost:7071/api/health` → `{"status": "healthy"}`
-3. Test full flow: upload a document at http://localhost:5173
+   # Terminal 1 — API
+   cd api && source .venv/bin/activate && func start
 
-### Security Note
-The API key is visible in `api/local.settings.json`. Consider rotating it in Azure Portal (Keys and Endpoint → Regenerate Key 1) if it was exposed.
+   # Terminal 2 — Frontend
+   cd frontend && npm run dev
+   ```
+2. Open http://localhost:5173 and do a final smoke test with a real SOW document
+3. If satisfied, merge to `main` (see steps below)
+
+### To Deploy to Production (after final testing)
+1. **Update Azure SWA app settings** in the Azure Portal:
+   - Go to Static Web App → **Configuration** → Application settings
+   - **Delete** the three old `AZURE_OPENAI_*` settings
+   - **Add** three new settings:
+     | Name | Value |
+     |---|---|
+     | `AZURE_AI_ENDPOINT` | `https://deal-memo-openai.services.ai.azure.com/anthropic` |
+     | `AZURE_AI_API_KEY` | *(your Claude deployment key from Azure Foundry)* |
+     | `AZURE_AI_DEPLOYMENT` | `claude-sonnet-4-6` |
+   - Click **Save**
+
+2. **Merge the branch**:
+   ```bash
+   git checkout main
+   git merge feature/claude-sonnet-foundry
+   git push
+   ```
+   The GitHub Actions CI/CD pipeline will deploy automatically.
+
+3. **Verify production**: hit the live SWA URL and upload a test document
 
 ## Key Files
 - `api/function_app.py` — Routes: GET /api/health, POST /api/extract, POST /api/generate
-- `api/services/ai_extractor.py` — Azure OpenAI GPT-4o field extraction (uses `AzureOpenAI` client)
+- `api/services/ai_extractor.py` — Claude Sonnet 4.6 extraction via `anthropic` SDK
 - `api/services/document_reader.py` — PDF (pdfplumber) + .docx (python-docx) text extraction
 - `api/services/docx_generator.py` — docxtpl template rendering
 - `api/models/deal_memo.py` — Pydantic models (ExtractedFields, ManualFields, DealMemoData)
 - `frontend/src/pages/DealMemo.tsx` — Main wizard UI (4 steps)
-- `api/local.settings.json` — Local env vars (endpoint, key, deployment name)
+- `api/local.settings.json` — Local env vars (gitignored, contains real key)
 
 ## Environment Vars (backend)
-- `AZURE_OPENAI_ENDPOINT` — Base URL only (e.g., `https://deal-memo-openai.cognitiveservices.azure.com/`)
-- `AZURE_OPENAI_API_KEY` — Key from Azure Portal > Keys and Endpoint
-- `AZURE_OPENAI_DEPLOYMENT` — Model deployment name (currently `gpt-4o`)
+- `AZURE_AI_ENDPOINT` — `https://deal-memo-openai.services.ai.azure.com/anthropic` (note: no trailing `/v1/messages` — SDK appends it)
+- `AZURE_AI_API_KEY` — Key from Azure Foundry deployment
+- `AZURE_AI_DEPLOYMENT` — `claude-sonnet-4-6`

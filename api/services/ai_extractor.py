@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-from openai import AzureOpenAI
+import anthropic
 
 from models.deal_memo import ExtractedFields, ExtractionResult
 
@@ -31,42 +31,49 @@ Also return a "confidence" object with the same keys, where each value is a numb
 indicating how confident you are that the extracted value is correct. Use 0.0 if the field was not
 found in the documents.
 
-Return your response as a JSON object with two keys: "fields" and "confidence".
+Return ONLY valid JSON with two keys: "fields" and "confidence". No explanation, no markdown fencing.
 """
 
 
 def extract_fields(document_text: str) -> ExtractionResult:
-    """Send document text to Azure OpenAI and extract structured fields."""
-    client = AzureOpenAI(
-        azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
-        api_key=os.environ["AZURE_OPENAI_API_KEY"],
-        api_version="2024-10-21",
+    """Send document text to Claude via Azure AI Foundry and extract structured fields."""
+    client = anthropic.Anthropic(
+        base_url=os.environ["AZURE_AI_ENDPOINT"],
+        api_key=os.environ["AZURE_AI_API_KEY"],
     )
 
-    deployment = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
+    deployment = os.environ.get("AZURE_AI_DEPLOYMENT", "claude-sonnet-4-6")
 
     logger.info(
-        "Sending %d characters to Azure OpenAI for extraction",
+        "Sending %d characters to Claude (%s) for extraction",
         len(document_text),
+        deployment,
     )
 
-    response = client.chat.completions.create(
+    response = client.messages.create(
         model=deployment,
+        system=SYSTEM_PROMPT,
         messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
             {
                 "role": "user",
                 "content": f"Extract deal information from the following document text:\n\n{document_text}",
-            },
+            }
         ],
-        response_format={"type": "json_object"},
-        temperature=0.1,
         max_tokens=4096,
+        temperature=0.1,
     )
 
-    content = response.choices[0].message.content
+    content = response.content[0].text
     if not content:
-        raise ValueError("Empty response from Azure OpenAI")
+        raise ValueError("Empty response from Claude")
+
+    # Strip markdown code fences if Claude wrapped the JSON (e.g. ```json ... ```)
+    content = content.strip()
+    if content.startswith("```"):
+        content = content.split("```", 2)[1]
+        if content.startswith("json"):
+            content = content[4:]
+        content = content.rsplit("```", 1)[0].strip()
 
     parsed = json.loads(content)
 

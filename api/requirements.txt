@@ -1,7 +1,7 @@
 azure-functions
 azure-storage-blob
 azure-identity
-openai
+anthropic
 python-docx
 docxtpl
 pdfplumber
