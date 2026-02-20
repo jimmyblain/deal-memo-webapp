@@ -17,7 +17,7 @@ The app walks you through a 4-step wizard:
 |-------|-----------|--------------|
 | **Frontend** | React + TypeScript + Vite | The user interface — the wizard you interact with in the browser |
 | **Backend** | Python Azure Functions | The server-side logic — reads documents, calls AI, generates the Word file |
-| **AI** | Azure OpenAI (GPT-4o) | The "brain" that reads your documents and extracts structured data from them |
+| **AI** | Claude Sonnet 4.6 via Azure AI Foundry | The "brain" that reads your documents and extracts structured data from them |
 | **Deployment** | Azure Static Web Apps | Hosts both the frontend and backend in one Azure resource, with CI/CD via GitHub Actions |
 
 ## Project Structure
@@ -29,7 +29,7 @@ deal-memo-webapp/
 │   ├── models/
 │   │   └── deal_memo.py          # Data models (what a deal memo looks like in code)
 │   ├── services/
-│   │   ├── ai_extractor.py       # Sends document text to GPT-4o, gets structured fields back
+│   │   ├── ai_extractor.py       # Sends document text to Claude, gets structured fields back
 │   │   ├── document_reader.py    # Reads text from PDF and Word files
 │   │   └── docx_generator.py     # Fills in the Word template to produce the final memo
 │   ├── templates/
@@ -57,9 +57,9 @@ deal-memo-webapp/
 Before you start, make sure you have these installed:
 
 - **Node.js** (v18 or later) — runs the frontend dev server. [Download here](https://nodejs.org/).
-- **Python 3.11+** — runs the backend. Check with `python3 --version`.
+- **Python 3.9+** — runs the backend. Check with `python3 --version`.
 - **Azure Functions Core Tools** (v4) — lets you run the backend locally. [Install guide](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local).
-- **An Azure OpenAI resource** — you need a deployed GPT-4o model with an endpoint URL and API key. See `CLAUDE.md` for details on the current setup.
+- **An Azure AI Foundry deployment** — you need a Claude Sonnet 4.6 model deployed via Azure AI Foundry, with an endpoint URL and API key. See `CLAUDE.md` for details on the current setup.
 
 ## Local Development Setup
 
@@ -91,11 +91,11 @@ source .venv/bin/activate      # Activate it (your prompt will show ".venv")
 pip install -r requirements.txt # Install Python dependencies
 ```
 
-Next, create your local settings file from the included example and fill in your real credentials:
+Next, create your local settings file and fill in your real credentials:
 
 ```bash
 cp local.settings.example.json local.settings.json   # Copy the example file
-# Now open local.settings.json and replace the placeholder values with your real Azure OpenAI credentials
+# Now open local.settings.json and replace the placeholder values with your real credentials
 ```
 
 See the Environment Variables section below for what each value means. Then start the backend:
@@ -121,9 +121,9 @@ The backend needs these variables, configured in `api/local.settings.json`:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `AZURE_OPENAI_ENDPOINT` | Base URL of your Azure OpenAI resource (no trailing path) | `https://deal-memo-openai.cognitiveservices.azure.com/` |
-| `AZURE_OPENAI_API_KEY` | API key from Azure Portal > your OpenAI resource > Keys and Endpoint | `abc123...` |
-| `AZURE_OPENAI_DEPLOYMENT` | The name of your deployed GPT-4o model | `gpt-4o` |
+| `AZURE_AI_ENDPOINT` | Anthropic-compatible endpoint from Azure AI Foundry | `https://your-resource.services.ai.azure.com/anthropic` |
+| `AZURE_AI_API_KEY` | API key from your Azure AI Foundry deployment | `abc123...` |
+| `AZURE_AI_DEPLOYMENT` | The Claude model deployment name | `claude-sonnet-4-6` |
 
 Your `api/local.settings.json` should look like this:
 
@@ -133,9 +133,9 @@ Your `api/local.settings.json` should look like this:
   "Values": {
     "AzureWebJobsStorage": "",
     "FUNCTIONS_WORKER_RUNTIME": "python",
-    "AZURE_OPENAI_ENDPOINT": "https://your-resource.cognitiveservices.azure.com/",
-    "AZURE_OPENAI_API_KEY": "your-key-here",
-    "AZURE_OPENAI_DEPLOYMENT": "gpt-4o"
+    "AZURE_AI_ENDPOINT": "https://your-resource.services.ai.azure.com/anthropic",
+    "AZURE_AI_API_KEY": "your-key-here",
+    "AZURE_AI_DEPLOYMENT": "claude-sonnet-4-6"
   }
 }
 ```
@@ -155,7 +155,7 @@ The infrastructure (the Azure resources themselves) is defined in `infrastructur
 | File | What it does |
 |------|-------------|
 | `api/function_app.py` | Defines the 3 API endpoints: health check, field extraction, and memo generation |
-| `api/services/ai_extractor.py` | Sends document text to Azure OpenAI GPT-4o and parses the structured response |
+| `api/services/ai_extractor.py` | Sends document text to Claude Sonnet 4.6 via Azure AI Foundry and parses the structured response |
 | `api/services/document_reader.py` | Extracts raw text from uploaded PDF and Word files |
 | `api/services/docx_generator.py` | Takes all the fields and fills them into the Word template to produce the final memo |
 | `api/models/deal_memo.py` | Pydantic models that define what fields a deal memo contains and validate the data |
